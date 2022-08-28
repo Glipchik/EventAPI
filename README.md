@@ -17,6 +17,6 @@ ToDo:
 EventAPI.UI folder
 2. Now you are ready to launch the application
 
-#Working process
+# Working process
 
 After launching you will see the swagger page that explains what functionality does the application offer and that can help you use the app.
