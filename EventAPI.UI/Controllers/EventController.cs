@@ -2,6 +2,7 @@
 using EventAPI.Business.Interfaces;
 using EventAPI.Core.Entities;
 using EventAPI.UI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventAPI.UI.Controllers
@@ -29,6 +30,7 @@ namespace EventAPI.UI.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public ActionResult<Event> GetEvent(int id)
         {
             try
@@ -45,6 +47,8 @@ namespace EventAPI.UI.Controllers
 
         [HttpPost]
         [Route("Create")]
+        
+        [Authorize]
         public ActionResult CreateEvent(CreateEventModel createModel)
         {
             _eventService.CreateEvent(_mapper.Map<Event>(createModel));
@@ -54,6 +58,8 @@ namespace EventAPI.UI.Controllers
 
         [HttpDelete]
         [Route("Delete")]
+        
+        [Authorize]
         public ActionResult DeleteEvent(string name)
         {
             _eventService.DeleteEvent(name);
@@ -63,6 +69,8 @@ namespace EventAPI.UI.Controllers
 
         [HttpPut]
         [Route("Update")]
+        
+        //[Authorize]
         public ActionResult UpdateEvent(UpdateEventModel updateModel)
         {
             _eventService.UpdateEvent(_mapper.Map<Event>(updateModel));

@@ -1,11 +1,13 @@
 ﻿using EventAPI.Core.Entities;
 using EventAPI.DAL.EntityConfigurations;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace EventAPI.DAL.Context
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         private readonly IConfiguration _configuration;
         public DbSet<Event> Events { get; set; }
@@ -30,9 +32,16 @@ namespace EventAPI.DAL.Context
             }
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            modelBuilder.ApplyConfiguration(new EventConfiguration());
+            builder.ApplyConfiguration(new EventConfiguration());
+            builder.ApplyConfiguration(new IdentityUserConfiguration());
+            builder.Entity<IdentityRole>(e => e.ToTable("Roles").HasNoKey());
+            builder.Entity<IdentityUserRole<string>>(e => e.ToTable("UserRoles").HasNoKey());
+            builder.Entity<IdentityUserClaim<string>>(e => e.ToTable("UserClaims").HasNoKey());
+            builder.Entity<IdentityUserLogin<string>>(e => e.ToTable("UserLogins").HasNoKey());
+            builder.Entity<IdentityUserToken<string>>(e => e.ToTable("UserTokens").HasNoKey());
+            builder.Entity<IdentityRoleClaim<string>>(e => e.ToTable("RoleClaims").HasNoKey());
         }
     }
 }
