@@ -69,8 +69,6 @@ namespace EventAPI.UI.Controllers
 
         [HttpPut]
         [Route("Update")]
-        
-        //[Authorize]
         public ActionResult UpdateEvent(UpdateEventModel updateModel)
         {
             _eventService.UpdateEvent(_mapper.Map<Event>(updateModel));
