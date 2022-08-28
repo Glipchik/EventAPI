@@ -9,8 +9,8 @@ namespace EventAPI.DAL.Context
 {
     public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
-        private readonly IConfiguration _configuration;
-        public DbSet<Event> Events { get; set; }
+        private readonly IConfiguration? _configuration;
+        public DbSet<Event>? Events { get; set; }
 
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {

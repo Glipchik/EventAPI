@@ -12,6 +12,7 @@ namespace EventAPI.DAL.EntityConfigurations
             builder.HasIndex(e => e.Id).IsUnique();
             builder.Property(e => e.Name).HasMaxLength(80);
             builder.Property(e => e.Description).HasMaxLength(200);
+            builder.Property(e => e.Plan).HasMaxLength(400);
             builder.Property(e => e.Organizer).HasMaxLength(50);
             builder.Property(e => e.Speaker).HasMaxLength(50);
             builder.Property(e => e.EventPlace).HasMaxLength(100);

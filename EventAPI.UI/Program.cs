@@ -1,14 +1,11 @@
-using AutoMapper;
 using EventAPI.Business.Interfaces;
 using EventAPI.Business.Services;
 using EventAPI.DAL.Context;
 using EventAPI.DAL.Interfaces;
 using EventAPI.DAL.Repositories;
-using EventAPI.UI.Configurations;
-using EventAPI.UI.Mappers;
-using IdentityServer4.Models;
-using Microsoft.AspNetCore.Identity;
+using EventAPI.UI.DI;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,22 +17,7 @@ var configurationBuilder = new ConfigurationBuilder().AddJsonFile("appsettings.j
 var options = new DbContextOptionsBuilder().Options;
 builder.Services.AddDbContext<ApplicationDbContext>(_ => new ApplicationDbContext(options: options, configurationBuilder));
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(config =>
-{
-    config.Password.RequiredLength = 6;
-    config.Password.RequireNonAlphanumeric = false;
-    config.Password.RequireUppercase = false;
-})
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
-
-builder.Services.AddIdentityServer()
-    .AddInMemoryApiResources(IdentityConfiguration.ApiResources)
-    .AddInMemoryIdentityResources(IdentityConfiguration.IdentityResources)
-    .AddInMemoryApiScopes(IdentityConfiguration.ApiScopes)
-    .AddInMemoryClients(IdentityConfiguration.Clients)
-    .AddDeveloperSigningCredential()
-    .AddAspNetIdentity<IdentityUser>();
+builder.Services.AddAuthentificationDI();
 
 builder.Services.ConfigureApplicationCookie(config =>
 {
@@ -48,16 +30,16 @@ builder.Services.AddTransient<IEventRepository, EventRepository>();
 builder.Services.AddTransient<IEventService, EventService>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
-var config = new MapperConfiguration(c =>
-{
-    c.AddProfile(new UIModelsMapper());
-});
-IMapper mapper = config.CreateMapper();
-builder.Services.AddSingleton(mapper);
+builder.Services.AddMapperDI();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(config =>
+{
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    config.IncludeXmlComments(xmlPath);
+});
 
 var app = builder.Build();
 
@@ -65,11 +47,16 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(config =>
+    {
+        config.RoutePrefix = String.Empty;
+        config.SwaggerEndpoint("swagger/v1/swagger.json", "Events API");
+    });
 }
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

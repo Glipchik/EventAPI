@@ -15,42 +15,38 @@ namespace EventAPI.Business.Services
             _unitOfWork = unitOfWork;
         }
 
-        public IEnumerable<Event> GetAllEvents()
+        public async Task<IEnumerable<Event>> GetAllEventsAsync() => await _eventRepository.GetAllAsync();
+
+        public async Task<Event?> GetEventAsync(int id) => await _eventRepository.GetByIdAsync(id);
+
+        public async Task<int> CreateEventAsync(Event @event)
         {
-            return _eventRepository.GetAll();
+            var eventId = await _eventRepository.CreateAsync(@event);
+
+            _unitOfWork.SaveChanges();
+
+            return eventId;
         }
 
-        public Event GetEvent(int id)
+        public async Task<bool> DeleteEventAsync(string name)
         {
-            var @event = _eventRepository.GetById(id);
+            var result = await _eventRepository.DeleteAsync(name);
 
-            if (@event is null)
+            _unitOfWork.SaveChanges();
+
+            return result;
+        }
+
+        public async Task<bool> UpdateEventAsync(Event @event)
+        {
+            var eventIsUpdated = await _eventRepository.UpdateAsync(@event);
+
+            if (eventIsUpdated)
             {
-                throw new ArgumentNullException(nameof(id));
+                _unitOfWork.SaveChanges();
             }
 
-            return @event;
-        }
-
-        public void CreateEvent(Event @event)
-        {
-            _eventRepository.Create(@event);
-
-            _unitOfWork.SaveChanges();
-        }
-
-        public void DeleteEvent(string name)
-        {
-            _eventRepository.Delete(name);
-
-            _unitOfWork.SaveChanges();
-        }
-
-        public void UpdateEvent(Event @event)
-        {
-            _eventRepository.Update(@event);
-
-            _unitOfWork.SaveChanges();
+            return eventIsUpdated;
         }
     }
 }

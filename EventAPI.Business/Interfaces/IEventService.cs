@@ -4,14 +4,14 @@ namespace EventAPI.Business.Interfaces
 {
     public interface IEventService
     {
-        public IEnumerable<Event> GetAllEvents();
+        public Task<IEnumerable<Event>> GetAllEventsAsync();
 
-        public Event GetEvent(int id);
+        public Task<Event?> GetEventAsync(int id);
 
-        public void CreateEvent(Event @event);
+        public Task<int> CreateEventAsync(Event @event);
 
-        public void DeleteEvent(string name);
+        public Task<bool> DeleteEventAsync(string name);
 
-        public void UpdateEvent(Event @event);
+        public Task<bool> UpdateEventAsync(Event @event);
     }
 }

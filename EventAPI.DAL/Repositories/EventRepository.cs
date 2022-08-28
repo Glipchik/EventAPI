@@ -1,6 +1,8 @@
 ﻿using EventAPI.Core.Entities;
+using EventAPI.Core.Exceptions;
 using EventAPI.DAL.Context;
 using EventAPI.DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventAPI.DAL.Repositories
 {
@@ -13,35 +15,62 @@ namespace EventAPI.DAL.Repositories
             _context = context;
         }
 
-        public int Create(Event @event)
+        public async Task<int> CreateAsync(Event @event)
         {
-            _context.Add(@event);
+            await _context.AddAsync(@event);
 
             return @event.Id;
         }
 
-        public void Delete(string name)
+        public async Task<bool> DeleteAsync(string name)
         {
-            var @event = _context.Events.FirstOrDefault(n => n.Name.Equals(name));
+            if (_context.Events is null) throw new EventDbSetNullException();
 
-            if (@event is not null) _context.Remove(@event);
+            var @event = await _context.Events.FirstOrDefaultAsync(n => n.Name.Equals(name));
+
+            if (@event is not null)
+            {
+                _context.Remove(@event);
+                return true;
+            }
+
+            return false;
         }
 
-        public IEnumerable<Event> GetAll()
+        public async Task<IEnumerable<Event>> GetAllAsync()
         {
-            return _context.Events;
+            if (_context.Events is null) throw new EventDbSetNullException();
+
+            return await _context.Events.ToListAsync();
         }
 
-        public Event GetById(int id)
+        public async Task<Event?> GetByIdAsync(int id)
         {
-            return _context.Events.FirstOrDefault(n => n.Id == id);
+            if (_context.Events is null) throw new EventDbSetNullException();
+
+            return await _context.Events.FirstOrDefaultAsync(n => n.Id == id);
         }
 
-        public void Update(Event @event)
+        public async Task<bool> UpdateAsync(Event @event)
         {
-            Delete(@event.Name);
+            if (_context.Events is null) throw new EventDbSetNullException();
 
-            Create(@event);
+            var eventToUpdate = await _context.Events.FirstOrDefaultAsync(n => n.Id == @event.Id);
+
+            if (eventToUpdate is not null)
+            {
+                eventToUpdate.Name = @event.Name;
+                eventToUpdate.Description = @event.Description;
+                eventToUpdate.Plan = @event.Plan;
+                eventToUpdate.Organizer = @event.Organizer;
+                eventToUpdate.Speaker = @event.Speaker;
+                eventToUpdate.EventTime = @event.EventTime;
+                eventToUpdate.EventPlace = @event.EventPlace;
+
+                return true;
+            }
+
+            return false;
         }
     }
 }

@@ -4,14 +4,14 @@ namespace EventAPI.DAL.Interfaces
 {
     public interface IEventRepository
     {
-        public int Create(Event @event);
+        public Task<int> CreateAsync(Event @event);
 
-        public void Delete(string name);
+        public Task<bool> DeleteAsync(string name);
 
-        public IEnumerable<Event> GetAll();
+        public Task<IEnumerable<Event>> GetAllAsync();
 
-        public Event GetById(int id);
+        public Task<Event?> GetByIdAsync(int id);
 
-        public void Update(Event @event);
+        public Task<bool> UpdateAsync(Event @event);
     }
 }
